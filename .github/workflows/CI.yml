@@ -29,10 +29,10 @@ jobs:
           uv pip install -e .
 
       - name: Linting
-        run: pylint $(git ls-files '*.py') 
+        run: .venv/bin/pylint $(git ls-files '*.py') 
 
       - name: Unit testing
-        run: pytest tests/
+        run: .venv/bin/pytest tests/
 
   Version-and-Publish:
     needs: Py-Build
