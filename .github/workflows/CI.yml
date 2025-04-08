@@ -57,7 +57,7 @@ jobs:
       #     git config --global credential.helper 'store --file ~/.git-credentials'
       - name: Sign in to Git
         run: |
-          echo "https://ktierney15:${{ secrets.TOKEN }}@github.com" > ~/.git-credentials
+          echo "https://ktierney15:${{ secrets.CI_TOKEN }}@github.com" > ~/.git-credentials
           git config --global credential.helper 'store --file ~/.git-credentials'
           git config --global user.name "ktierney15"
           git config --global user.email "ktierney15@users.noreply.github.com"
