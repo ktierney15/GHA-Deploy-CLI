@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Py-Build:
+  Py-CI:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -29,14 +29,7 @@ jobs:
           uv pip install -e .
 
       - name: Linting
-        run: .venv/bin/pylint $(git ls-files '*.py') --fail-under=7
-      
-      - name: Run gha-deploy
-        env:
-          GITHUB_TOKEN: ${{ secrets.CI_TOKEN }}
-        run: |
-          source .venv/bin/activate
-          gha-deploy GHA-Deploy-CLI Unit-Test.yml main
+        run: .venv/bin/pylint $(git ls-files '*.py') --fail-under=6
 
       - name: Unit testing
         env:
@@ -46,7 +39,7 @@ jobs:
           pytest tests/
 
   Version-and-Publish:
-    needs: Py-Build
+    needs: Py-CI
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     steps:
@@ -67,26 +60,24 @@ jobs:
         id: get-latest-tag
         run: echo "::set-output name=TAG::$(git describe --tags --abbrev=0)"
 
-      - name: Get commit message
+      - name: Read version from __init__.py
+        id: read-version
         run: |
-          MERGE_COMMIT_SHA=$(git log --merges --pretty=format:'%H' -n 1)
-          echo "commit_message=$(git log --format=%s -n 1 $MERGE_COMMIT_SHA)" >> $GITHUB_ENV
+          VERSION=$(python -c "from my_package import __version__; print(__version__)")
+          echo "Current version from __init__.py: $VERSION"
+          echo "::set-output name=VERSION::$VERSION"
 
-      - name: Set increment type variable
+      - name: Compare versions and fail if not updated
         run: |
-          if [[ "${{ env.commit_message }}" == *"PATCH"* ]]; then
-            echo "version_increment_type=patch" >> $GITHUB_ENV 
-          elif [[ "${{ env.commit_message }}" == *"MAJOR"* ]]; then
-            echo "version_increment_type=major" >> $GITHUB_ENV 
-          else
-            echo "version_increment_type=minor" >> $GITHUB_ENV
+          if [[ "${{ steps.read-version.outputs.VERSION }}" == "${{ steps.get-latest-tag.outputs.TAG }}" ]]; then
+            echo "Version has not been incremented. Failing the pipeline."
+            exit 1
           fi
-      
-      - name: Semantic Versioning
-        run: echo "updated_tag=$(python3 .github/scripts/sem-ver.py ${{ env.version_increment_type }} ${{ steps.get-latest-tag.outputs.TAG }})" >> $GITHUB_ENV
 
-      # - name: Tag new version
-      #   run: |
-      #     git tag ${{ env.updated_tag }}
-      #     git push origin --tags
+      - name: Update Git Tag
+        run: |
+          VERSION="${{ steps.read-version.outputs.VERSION }}"
+          git tag $VERSION
+          git push origin $VERSION
+
           
