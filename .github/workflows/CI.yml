@@ -22,8 +22,10 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install dependencies with uv
-        run: uv install
+      - name: Setup virtual environment
+        run: |
+          source .venv/bin/activate
+          uv pip install -e .
 
       - name: Linting
         run: pylint $(git ls-files '*.py') 
