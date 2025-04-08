@@ -11,7 +11,9 @@ def trigger_workflow(repo, workflow, ref, inputs={}):
     pass
 
 
-def run_action(token: str, repo: str, workflow: str, ref: str = "main", inputs: dict = {}) -> dict:
+
+
+def run_action(token: str, repo: str, workflow: str, ref: str = "main", inputs: dict = {}) -> str:
     repo_owner = "ktierney15"
     workflow_id = get_workflow_id(token, repo_owner, repo, workflow)
 
@@ -27,9 +29,10 @@ def run_action(token: str, repo: str, workflow: str, ref: str = "main", inputs: 
     response = requests.post(url, json=data, headers=headers)
     if response.status_code == 201:
         print("GitHub Action triggered successfully!")
-        return response.json()
+        return response.json()['jobId']
     else:
         raise click.UsageError(f"Failed to trigger GitHub Action: {response.status_code}, {response.text}")
+
 
 def get_workflow_id(token: str, repo_owner: str, repo: str, workflow_filename: str):
     if not token:
@@ -53,5 +56,29 @@ def get_workflow_id(token: str, repo_owner: str, repo: str, workflow_filename: s
     else:
         raise click.UsageError(f"Error: Failed to fetch workflows {response.status_code}, {response.text}")
 
-def poll_action():
-    pass
+
+def poll_action(token: str, repo_owner: str, repo: str):
+    print("Waiting for Job to finish...")
+    while True:
+        url = f"https://api.github.com/repos/{repo_owner}/{repo}/actions/runs"
+        headers = {
+            'Authorization': f'token {token}',
+            'Accept': 'application/vnd.github.v3+json'
+        }
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            runs_data = response.json()
+            latest_run = runs_data['workflow_runs'][0]
+            # run_id = latest_run['id']
+            status = latest_run['status']
+            conclusion = latest_run['conclusion']
+
+            if status == 'completed':
+                if conclusion == 'success':
+                    print("Workflow completed successfully! ✅")
+                else:
+                    print("Workflow failed. ❌")
+                    
+                print(f"View the run at: {latest_run['html_url']}")
+                break

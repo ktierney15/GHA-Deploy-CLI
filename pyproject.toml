@@ -17,3 +17,6 @@ dependencies = [
 Homepage = "https://github.com/ktierney15/gha-deploy-cli"
 Repository = "https://github.com/ktierney15/gha-deploy-cli"
 Issues = "https://github.com/ktierney15/gha-deploy-cli/issues"
+
+[project.scripts]
+gha-deploy = "gha_deploy.cli:deploy"
