@@ -31,8 +31,10 @@ jobs:
       - name: Linting
         run: .venv/bin/pylint $(git ls-files '*.py') --fail-under=7
       
-      - name: test
-        run: gha-deploy GHA-Deploy-CLI Unit-Test.yml main
+      - name: Run gha-deploy
+        run: |
+          source .venv/bin/activate
+          gha-deploy GHA-Deploy-CLI Unit-Test.yml main
 
       - name: Unit testing
         run: .venv/bin/pytest tests/
