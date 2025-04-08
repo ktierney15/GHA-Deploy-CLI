@@ -11,7 +11,7 @@ from .github_api import trigger_workflow
 @click.option("--ref", "ref_opt", help="The Git ref (e.g., branch or tag) for the deployment.")
 
 #optional flags
-@click.option("--no-track", is_flag=True, help="Don't poll the workflow after triggering it.")
+# @click.option("--no-track", is_flag=True, help="Don't poll the workflow after triggering it.")
 
 
 

@@ -1,6 +1,7 @@
 import os
 import requests
 import click
+import time
 
 
 def trigger_workflow(repo, workflow, ref, inputs={}):
@@ -9,11 +10,15 @@ def trigger_workflow(repo, workflow, ref, inputs={}):
     if not github_token:
         raise click.UsageError("Error: GITHUB_TOKEN environment variable is required for authentication.")
     pass
+    
+    run_action(github_token, repo, workflow, ref)
+    time.sleep(3)
+    poll_action(github_token, "ktierney15", repo)
 
 
 
 
-def run_action(token: str, repo: str, workflow: str, ref: str = "main", inputs: dict = {}) -> str:
+def run_action(token: str, repo: str, workflow: str, ref: str = "main", inputs: dict = {}):
     repo_owner = "ktierney15"
     workflow_id = get_workflow_id(token, repo_owner, repo, workflow)
 
@@ -27,9 +32,9 @@ def run_action(token: str, repo: str, workflow: str, ref: str = "main", inputs: 
     }
 
     response = requests.post(url, json=data, headers=headers)
-    if response.status_code == 201:
+    if response.status_code == 204:
         print("GitHub Action triggered successfully!")
-        return response.json()['jobId']
+        return
     else:
         raise click.UsageError(f"Failed to trigger GitHub Action: {response.status_code}, {response.text}")
 
@@ -46,11 +51,10 @@ def get_workflow_id(token: str, repo_owner: str, repo: str, workflow_filename: s
     }
 
     response = requests.get(url, headers=headers)
-
     if response.status_code == 200:
-        workflows = response.json().get('workflows', [])
+        workflows = response.json()['workflows']
         for workflow in workflows:
-            if workflow['filename'] == workflow_filename:
+            if workflow['path'].split("/")[-1] == workflow_filename:
                 return workflow['id']
         raise click.UsageError(f"Error: Workflow file {workflow_filename} does not exist in {repo_owner}/{repo}.")
     else:
@@ -70,7 +74,6 @@ def poll_action(token: str, repo_owner: str, repo: str):
         if response.status_code == 200:
             runs_data = response.json()
             latest_run = runs_data['workflow_runs'][0]
-            # run_id = latest_run['id']
             status = latest_run['status']
             conclusion = latest_run['conclusion']
 
