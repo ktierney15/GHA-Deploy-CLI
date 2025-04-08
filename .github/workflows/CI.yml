@@ -33,13 +33,17 @@ jobs:
       
       - name: Run gha-deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CI_TOKEN }}
         run: |
           source .venv/bin/activate
           gha-deploy GHA-Deploy-CLI Unit-Test.yml main
 
       - name: Unit testing
-        run: .venv/bin/pytest tests/
+        env:
+          GITHUB_TOKEN: ${{ secrets.CI_TOKEN }}
+        run: |
+          source .venv/bin/activate
+          pytest tests/
 
   Version-and-Publish:
     needs: Py-Build
