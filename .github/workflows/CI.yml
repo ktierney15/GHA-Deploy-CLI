@@ -24,6 +24,7 @@ jobs:
 
       - name: Setup virtual environment
         run: |
+          python -m venv .venv
           source .venv/bin/activate
           uv pip install -e .
 
@@ -32,11 +33,6 @@ jobs:
 
       - name: Unit testing
         run: pytest tests/
-
-      - name: build
-        run: |
-          uv pip install build
-          python -m build
 
   Version-and-Publish:
     needs: Py-Build
