@@ -49,12 +49,19 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.sha }}
 
+      # - name: Sign in to Git
+      #   run: |
+      #     echo -n "machine github.com login ktierney15 password ${{ secrets.CI_TOKEN }}" > ~/.netrc
+      #     git config --global user.name "${{ github.actor }}"
+      #     git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      #     git config --global credential.helper 'store --file ~/.git-credentials'
       - name: Sign in to Git
         run: |
-          echo -n "machine github.com login ktierney15 password ${{ secrets.CI_TOKEN }}" > ~/.netrc
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          echo "https://ktierney15:${{ secrets.TOKEN }}@github.com" > ~/.git-credentials
           git config --global credential.helper 'store --file ~/.git-credentials'
+          git config --global user.name "ktierney15"
+          git config --global user.email "ktierney15@users.noreply.github.com"
+
 
       - name: Get Latest Tag
         id: get-latest-tag
