@@ -1,3 +1,7 @@
+"""
+This File is the entrypoint for the tool. It defines the inputs and calls the github_api functions
+"""
+
 import click
 from .github_api import trigger_workflow
 
@@ -22,7 +26,6 @@ def deploy(repo, workflow, ref, repo_opt, workflow_opt, ref_opt):
     final_ref = ref_opt or ref
 
     if not final_repo or not final_workflow or not final_ref:
-        raise click.UsageError("You must provide repo, workflow, and ref either positionally or via flags.")
+        raise click.UsageError("You must provide repo, workflow, and ref")
 
     trigger_workflow(final_repo, final_workflow, final_ref)
-

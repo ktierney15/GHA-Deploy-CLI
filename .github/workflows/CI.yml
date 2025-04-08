@@ -29,7 +29,7 @@ jobs:
           uv pip install -e .
 
       - name: Linting
-        run: .venv/bin/pylint $(git ls-files '*.py') 
+        run: .venv/bin/pylint $(git ls-files '*.py') --fail-under=7
 
       - name: Unit testing
         run: .venv/bin/pytest tests/

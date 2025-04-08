@@ -1,15 +1,18 @@
+"""
+This file contains all of the functions that will interact with the github API
+"""
+
 import os
+import time
 import requests
 import click
-import time
 
 
 def trigger_workflow(repo, workflow, ref, inputs={}):
     # CLI workflow
     github_token = os.getenv("GITHUB_TOKEN")
     if not github_token:
-        raise click.UsageError("Error: GITHUB_TOKEN environment variable is required for authentication.")
-    pass
+        raise click.UsageError("Error: GITHUB_TOKEN environment variable is required.")
     
     run_action(github_token, repo, workflow, ref)
     time.sleep(3)
@@ -31,7 +34,7 @@ def run_action(token: str, repo: str, workflow: str, ref: str = "main", inputs: 
         "ref": ref
     }
 
-    response = requests.post(url, json=data, headers=headers)
+    response = requests.post(url, json=data, headers=headers, timeout=10)
     if response.status_code == 204:
         print("GitHub Action triggered successfully!")
         return
@@ -50,7 +53,7 @@ def get_workflow_id(token: str, repo_owner: str, repo: str, workflow_filename: s
         'Accept': 'application/vnd.github.v3+json'
     }
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
     if response.status_code == 200:
         workflows = response.json()['workflows']
         for workflow in workflows:
@@ -69,7 +72,7 @@ def poll_action(token: str, repo_owner: str, repo: str):
             'Authorization': f'token {token}',
             'Accept': 'application/vnd.github.v3+json'
         }
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=10)
 
         if response.status_code == 200:
             runs_data = response.json()
@@ -82,6 +85,5 @@ def poll_action(token: str, repo_owner: str, repo: str):
                     print("Workflow completed successfully! ✅")
                 else:
                     print("Workflow failed. ❌")
-                    
                 print(f"View the run at: {latest_run['html_url']}")
                 break
