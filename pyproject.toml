@@ -10,7 +10,8 @@ dependencies = [
     "click>=8.1",
     "requests>=2.28",
     "rich>=13.0",
-    "pylint"
+    "pylint",
+    "pytest"
 ]
 
 [project.urls]
