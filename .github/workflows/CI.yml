@@ -32,6 +32,8 @@ jobs:
         run: .venv/bin/pylint $(git ls-files '*.py') --fail-under=7
       
       - name: Run gha-deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           source .venv/bin/activate
           gha-deploy GHA-Deploy-CLI Unit-Test.yml main
