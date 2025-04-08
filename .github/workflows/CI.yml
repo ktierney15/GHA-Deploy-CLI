@@ -51,7 +51,7 @@ jobs:
 
       - name: Sign in to Git
         run: |
-          echo -n "machine github.com login ktierney15 password ${{ secrets.TOKEN }}" > ~/.netrc
+          echo -n "machine github.com login ktierney15 password ${{ secrets.CI_TOKEN }}" > ~/.netrc
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global credential.helper 'store --file ~/.git-credentials'
@@ -75,8 +75,6 @@ jobs:
           fi
 
       - name: Update Git Tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.CI_TOKEN }}
         run: |
           VERSION="${{ steps.read-version.outputs.VERSION }}"
           git tag $VERSION
