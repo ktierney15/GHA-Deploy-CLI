@@ -8,7 +8,7 @@ import requests
 import click
 
 
-def trigger_workflow(repo, workflow, ref, inputs={}):
+def trigger_workflow(repo, workflow, ref, no_track, inputs={}):
     # CLI workflow
     github_token = os.getenv("GITHUB_TOKEN")
     if not github_token:
@@ -16,7 +16,8 @@ def trigger_workflow(repo, workflow, ref, inputs={}):
     
     run_action(github_token, repo, workflow, ref)
     time.sleep(3)
-    poll_action(github_token, "ktierney15", repo)
+    if not no_track:
+        poll_action(github_token, "ktierney15", repo)
 
 
 
