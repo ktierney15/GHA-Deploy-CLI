@@ -20,3 +20,14 @@ def test_deploy_cli_no_track():
 
     assert result.exit_code == 0
     assert "GitHub Action triggered successfully!" in result.output
+
+def test_deploy_cli_inputs():
+    """Unit test for running the CLI with --inputs"""
+    runner = CliRunner()
+    result = runner.invoke(deploy, ["GHA-Deploy-CLI", "Unit-Test.yml", "main", "--inputs", '{"test1": "test", "test2": "testagain"}'])
+
+    assert result.exit_code == 0
+    assert "GitHub Action triggered successfully!" in result.output
+    assert "Waiting for Job to finish..." in result.output
+    assert "Workflow completed successfully! ✅" in result.output
+    

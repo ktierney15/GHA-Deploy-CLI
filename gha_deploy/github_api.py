@@ -4,17 +4,22 @@ This file contains all of the functions that will interact with the github API
 
 import os
 import time
+import json
 import requests
 import click
 
 
-def trigger_workflow(repo, workflow, ref, no_track, inputs={}):
+def trigger_workflow(repo, workflow, ref, no_track, inputs=""):
     # CLI workflow
     github_token = os.getenv("GITHUB_TOKEN")
     if not github_token:
         raise click.UsageError("Error: GITHUB_TOKEN environment variable is required.")
     
-    run_action(github_token, repo, workflow, ref)
+    parsed_inputs = {}
+    if inputs:
+        parsed_inputs = json.loads(inputs)
+
+    run_action(github_token, repo, workflow, ref, parsed_inputs)
     time.sleep(3)
     if not no_track:
         poll_action(github_token, "ktierney15", repo)
@@ -34,6 +39,9 @@ def run_action(token: str, repo: str, workflow: str, ref: str = "main", inputs: 
     data = {
         "ref": ref
     }
+
+    if inputs:
+        data["inputs"] = inputs
 
     response = requests.post(url, json=data, headers=headers, timeout=10)
     if response.status_code == 204:
