@@ -14,3 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: echo vars
+        run: |
+          echo ${{ inputs.test1 }}
+          echo ${{ inputs.test2 }}
