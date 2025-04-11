@@ -1,13 +1,13 @@
 name: Unit Test
 on:
   workflow_dispatch:
-inputs:
-  test1: 
-    required: false
-    default: none
-  test2:
-    required: false
-    default: none
+    inputs:
+      test1: 
+        required: false
+        default: none
+      test2:
+        required: false
+        default: none
 
 jobs:
   Unit-Test:
