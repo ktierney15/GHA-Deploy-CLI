@@ -3,7 +3,47 @@ on:
   workflow_dispatch:
 
 jobs:
-  CD:
+  Pre-Check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      # Check if you are executing from a branch and exit if so ## MUST EXECUTE FROM TAG ##
+      - name: Get branch or tag name
+        run: echo "REF_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/')" >> $GITHUB_ENV
+
+      - name: Check if it's a tag
+        run: |
+          if [[ -z "${REF_NAME}" ]]; then
+            echo "This is not a tag. Exiting..."
+            exit 1
+          fi
+
+  Deploy:
+    needs: Pre-Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo 'export PATH="$HOME/.local/bin:$PATH"' >> $GITHUB_ENV
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Setup virtual environment
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          uv pip install -e .
+
+      - name: Build
+        run: uv build
+
+      - name: Publish to PyPi
+        run: uv publish --username "__token__" --password "${{ secrets.PYPI_TOKEN }}"
+
