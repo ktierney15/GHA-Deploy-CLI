@@ -61,12 +61,6 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
-      
-      - name: Download built dist
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
 
       - name: Configure Git
         run: |
@@ -97,10 +91,4 @@ jobs:
           VERSION="${{ steps.read-version.outputs.VERSION }}"
           git tag $VERSION
           git push origin $VERSION
-
-      - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/*
-
           
